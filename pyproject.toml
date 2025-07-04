@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "face-mask-detection"
+version = "0.1.0"
+description = "Capstone project: Practice computer vision tools"
+license = ""
+authors = ["Fakhar Zaman <fakhar.mit@gmail.com>"]
+maintainers = ["Fakhar Zaman <fakhar.mit@gmail.com>"]
+readme = "README.md"
+
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+packages = [
+    { include = "fmdtools" },
+]
+
+[tool.setuptools]
+packages = ["fmdtools"]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.13"
+torch = "2.5.1"
