@@ -26,4 +26,8 @@ packages = ["fmdtools"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.13"
-torch = "2.5.1"
+jupyterlab = ">=4.4.4"
+xmltodict = "0.14.2"
+torch = "2.7.1"
+matplotlib = "3.9.4"
+numpy = "2.0.2"
