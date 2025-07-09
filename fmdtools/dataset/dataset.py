@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 import matplotlib.patches as mpatches
 from collections import Counter
+from torchvision import transforms
+from PIL import Image
+import torch
 
 def data_visualization(
         image_name: str, 
@@ -84,6 +87,39 @@ def data_analysis(
 
     plt.show()
 
+def dataset_creation(
+        data_dir: str
+    ): 
+    image_names = os.listdir(f'{data_dir}/images')
+    images = []
+    labels = []
+    
+    options = {"with_mask":0,"without_mask":1,"mask_weared_incorrect":2} 
+    transform = transforms.Compose([transforms.Resize((226,226)),
+                                 transforms.ToTensor()])
+
+    for i,image_name in enumerate(image_names):
+        with open(f'{data_dir}/annotations/'+image_name[:-4]+".xml") as fd:
+            doc = xmltodict.parse(fd.read())
+        if type(doc["annotation"]["object"])!=list:
+            temp = doc["annotation"]["object"]
+            x,y,w,h = list(map(int,temp["bndbox"].values()))
+            label = options[temp["name"]]
+            image = transforms.functional.crop(Image.open(f'{data_dir}/images/' + image_name).convert("RGB"), y,x,h-y,w-x)
+            images.append(transform(image))
+            labels.append(torch.tensor(label))
+        else:
+            temp=doc["annotation"]["object"]
+            for k in range(len(temp)):
+                x,y,w,h=list(map(int,temp[k]["bndbox"].values()))
+                label=options[temp[k]["name"]]
+                image=transforms.functional.crop(Image.open(f'{data_dir}/images/' + image_name).convert("RGB"),y,x,h-y,w-x)
+                images.append(transform(image))
+                labels.append(torch.tensor(label))
+                
+    dataset = [[k,l] for k,l in zip(images,labels)]
+    return tuple(dataset)
+
 
 def datapreprocessing(
         data_dir: str = None,
@@ -102,10 +138,12 @@ def datapreprocessing(
     if visualize_data:
         fig,ax=plt.subplots(2, 2)
         fig.set_size_inches(10,10)
-        data_visualization(image_name=image_names[0], data_dir=data_dir, ax=ax[0,0])
-        data_visualization(image_name=image_names[10], data_dir=data_dir, ax=ax[0,1])
-        data_visualization(image_name=image_names[20], data_dir=data_dir, ax=ax[1,0])
-        data_visualization(image_name=image_names[5], data_dir=data_dir, ax=ax[1,1])
+        data_visualization(image_name = image_names[0], data_dir = data_dir, ax = ax[0,0])
+        data_visualization(image_name = image_names[10], data_dir = data_dir, ax = ax[0,1])
+        data_visualization(image_name = image_names[20], data_dir = data_dir, ax = ax[1,0])
+        data_visualization(image_name = image_names[5], data_dir = data_dir, ax = ax[1,1])
+
+    dataset = dataset_creation(data_dir = data_dir)
     
-    return image_names, xml_names
+    return image_names, xml_names, dataset
 
